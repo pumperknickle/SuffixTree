@@ -36,9 +36,10 @@ public extension NumberedTree {
     func ksame(k: Int) -> Int {
         return children.values().map { $0.ksame(k: k, prefixCount: 0) }.max() ?? 0
     }
-    
+
     func paths(begin: Key, contain: Key) -> TrieMapping<Key, Int> {
-        
+        guard let firstNode = children[begin] else { return TrieMapping<Key, Int>() }
+        return firstNode.paths(containing: contain, currentPath: [])
     }
 }
 
@@ -53,9 +54,27 @@ public extension NumberedNode {
         let count = children.values().map { $0.childCount }.reduce(0, +)
         self.init(prefix: prefix, value: value, children: children, childCount: count + (value ?? 0))
     }
+
+    func paths(containing element: Key, currentPath: [Key]) -> TrieMapping<Key, Int> {
+        guard let sweepToPrefix = prefix.sweepTo(element) else {
+            return children.values().map { $0.paths(containing: element, currentPath: currentPath + prefix) }.reduce(TrieMapping<Key, Int>()) { (result, entry) -> TrieMapping<Key, Int> in
+                return result.overwrite(with: entry)
+            }
+        }
+        return TrieMapping<Key, Int>().setting(keys: currentPath + sweepToPrefix, value: childCount)
+    }
     
     func ksame(k: Int, prefixCount: Int) -> Int {
         if childCount < k { return 0 }
         return max((children.values().map { $0.ksame(k: k, prefixCount: prefixCount + prefix.count) }.max() ?? 0), prefixCount + prefix.count)
+    }
+}
+
+public extension Array where Element: Equatable {
+    func sweepTo(_ element: Element) -> Self? {
+        guard let firstElement = first else { return nil }
+        if firstElement == element { return [element] }
+        guard let suffix = Array(self.dropFirst()).sweepTo(element) else { return nil }
+        return [firstElement] + suffix
     }
 }

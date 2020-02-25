@@ -7,7 +7,7 @@ import AwesomeTrie
 
 final class SuffixTreeSpec: QuickSpec {
     override func spec() {
-        describe("getting counts") {
+        describe("counts and paths") {
             let fst = SuffixTree<String>()
             let fst1 = fst.incrementing(["Hello", "World"])
             it("should have 1 count") {
@@ -21,11 +21,23 @@ final class SuffixTreeSpec: QuickSpec {
             it("should have 3 count") {
                 expect(fst3.children.values().first!.childCount).to(equal(3))
             }
+            let fst4 = fst3.incrementing(["Goodbye", "World"]).incrementing(["Hello", "Dolly"])
+            it("should correctly extract paths") {
+                let paths = fst4.paths(begin: "Hello", contain: "World")
+                expect(paths.elements().first!.1).to(equal(3))
+                expect(paths.elements().first!.0).to(equal(["Hello", "World"]))
+            }
         }
         describe("ksame") {
             let arrayToAnalyze = SuffixTree<String>.extractSuffixes(keys: ["1", "2", "3", "4", "1", "2", "3", "4", "3", "2", "1"])
             it("should calculate k same") {
                 expect(arrayToAnalyze.ksame(k: 2)).to(equal(4))
+            }
+        }
+        describe("sweep to") {
+            let arrayToSweep = [1,2,3,4]
+            it("should sweep correctly") {
+                expect(arrayToSweep.sweepTo(3)).to(equal([1,2,3]))
             }
         }
     }
