@@ -53,6 +53,13 @@ public extension NumberedTree {
         guard let firstNode = children[begin] else { return TrieMapping<Key, Int>() }
         return firstNode.paths(containing: contain, currentPath: [])
     }
+    
+    func ngrams(n: Int) -> TrieMapping<Key, Int> {
+        if n == 0 { return TrieMapping<Key, Int>() }
+        return children.values().reduce(TrieMapping<Key, Int>()) { (result, entry) -> TrieMapping<Key, Int> in
+            return result.overwrite(with: entry.ngrams(n: n, currentPath: []))
+        }
+    }
 }
 
 public protocol NumberedNode: AwesomeTrie.Node where Value == Int {
@@ -79,6 +86,15 @@ public extension NumberedNode {
     func ksame(k: Int, prefixCount: Int) -> Int {
         if childCount < k { return 0 }
         return max((children.values().map { $0.ksame(k: k, prefixCount: prefixCount + prefix.count) }.max() ?? 0), prefixCount + prefix.count)
+    }
+    
+    func ngrams(n: Int, currentPath: [Key]) -> TrieMapping<Key, Int> {
+        let concatenatedPath = currentPath + prefix
+        if concatenatedPath.count >= n { return TrieMapping<Key, Int>().setting(keys: Array(concatenatedPath.prefix(n)), value: childCount) }
+        let childPaths = children.values().reduce(TrieMapping<Key, Int>()) { (result, entry) -> TrieMapping<Key, Int> in
+            return result.overwrite(with: entry.ngrams(n: n, currentPath: concatenatedPath))
+        }
+        return childPaths
     }
 }
 

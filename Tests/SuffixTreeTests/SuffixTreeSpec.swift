@@ -7,7 +7,7 @@ import AwesomeTrie
 
 final class SuffixTreeSpec: QuickSpec {
     override func spec() {
-        describe("counts and paths") {
+        describe("counts, paths, n grams") {
             let fst = SuffixTree<String>()
             let fst1 = fst.incrementing(["Hello", "World"])
             it("should have 1 count") {
@@ -30,7 +30,10 @@ final class SuffixTreeSpec: QuickSpec {
                 expect(fst5[["How", "Are", "You"]]).toNot(beNil())
                 expect(fst5[["Are", "You"]]).toNot(beNil())
                 expect(fst5[["You"]]).toNot(beNil())
-
+            }
+            it("should correctly display n grams") {
+                expect(fst5.ngrams(n: 2).contains(keys: ["Hello", "World"])).to(beTrue())
+                expect(fst5.ngrams(n: 2).contains(keys: ["Goodbye", "World"])).to(beTrue())
             }
         }
         describe("ksame") {
