@@ -15,6 +15,18 @@ public extension NumberedTree {
         return setting(keys: keys, value: currentVal - 1)
     }
     
+    func incrementingAllSuffixes(_ keys: [Key]) -> Self {
+        Self.expand(keys: keys).reduce(self) { (result, entry) -> Self in
+            return result.incrementing(entry)
+        }
+    }
+    
+    func decrementingAllSuffixes(_ keys: [Key]) -> Self {
+        Self.expand(keys: keys).reduce(self) { (result, entry) -> Self in
+            return result.decrementing(entry)
+        }
+    }
+    
     static func extractSuffixes(keys: [Key]) -> Self {
         return create(keys: expand(keys: keys))
     }

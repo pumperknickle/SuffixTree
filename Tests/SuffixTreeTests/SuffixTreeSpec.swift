@@ -22,10 +22,15 @@ final class SuffixTreeSpec: QuickSpec {
                 expect(fst3.children.values().first!.childCount).to(equal(3))
             }
             let fst4 = fst3.incrementing(["Goodbye", "World"]).incrementing(["Hello", "Dolly"])
+            let fst5 = fst4.incrementingAllSuffixes(["How", "Are", "You"])
             it("should correctly extract paths") {
                 let paths = fst4.paths(begin: "Hello", contain: "World")
                 expect(paths.elements().first!.1).to(equal(3))
                 expect(paths.elements().first!.0).to(equal(["Hello", "World"]))
+                expect(fst5[["How", "Are", "You"]]).toNot(beNil())
+                expect(fst5[["Are", "You"]]).toNot(beNil())
+                expect(fst5[["You"]]).toNot(beNil())
+
             }
         }
         describe("ksame") {
